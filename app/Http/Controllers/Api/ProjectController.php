@@ -22,5 +22,30 @@ class ProjectController extends Controller
     public function show(Project $project){
         return response()->json($project);
     }
+
+    public function search(Request $request){
+        $data = $request->all();
+
+        // Se data ha name settato 
+        if ( isset($data['priority'])){
+            $stringa = $data['priority'];
+            $projects = Project::where('name', 'LIKE', "%{$stringa}%")->get();
+        }
+        elseif ( is_null($data['priority'])) {
+            $projects = Project::all();
+        } 
+        // Altrimenti avbort
+        else {
+            abort(404);
+        }
+
+        return response()->json([
+            "success" => true,
+            "results" => $projects,
+            // Contsa quanti proggetti hai trovato  
+            "matches" => count($projects)
+        ]);
+         
+    }
 }
- 
+
