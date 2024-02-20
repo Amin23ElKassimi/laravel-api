@@ -10,28 +10,41 @@ class ProjectController extends Controller
 {
     //
     public function index(){
-        // ? EAGER LOADING con il nome del metodo presente all'interno del model
-        $projects = Project::all();
+        // Funxionalita di EAGER LOADING con il nome del metodo presente all'interno del model
+        $projects = Project::with('type','technologies')->paginate(20);
+        // con la with lui si fa i where da  solo cercando le risorse che hanno una relazione con la risorsa in questione
 
         // Al termine del nostro metodo nel Controller quindi chiameremo il metodo
         // response()->json(array);
         // L'array verrà trasformato in un JSON vero e proprio da consegnare all’utente (chi ha chiamato la nostra API).
-        return response()->json($projects);
+        return response()->json(
+            [
+                "success" => true,
+                "results" => $projects
+            ]);
     }
 
+
+
+    // Show
     public function show(Project $project){
         return response()->json($project);
     }
 
+
+
+    // Search per testare le Query String 
     public function search(Request $request){
+        // Request 
         $data = $request->all();
 
-        // Se data ha name settato 
-        if ( isset($data['priority'])){
-            $stringa = $data['priority'];
-            $projects = Project::where('name', 'LIKE', "%{$stringa}%")->get();
+        // Se data ha find e' settato 
+        if ( isset($data['find'])){ 
+            $stringa = $data['find'];
+            //                           vvv la tabella dove va a cercare  
+            $projects = Project::where('status', 'LIKE', "%{$stringa}%")->get();
         }
-        elseif ( is_null($data['priority'])) {
+        elseif ( is_null($data['find'])) {
             $projects = Project::all();
         } 
         // Altrimenti avbort
